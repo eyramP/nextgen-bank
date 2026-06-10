@@ -7,3 +7,5 @@ down:
 down-v:
 	docker compose -f local.yml down -v
 
+connect_db:
+	docker compose -f local.yml exec postgres psql -U eyram -d nextgen
