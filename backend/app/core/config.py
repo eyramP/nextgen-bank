@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
     API_V1_STR: str = ""
     PROJECT_NAME: str = ""
-    PROJECT_DESDCRIPTION: str = ""
+    PROJECT_DESCRIPTION: str = ""
     SITE_NAME: str = ""
     DATABASE_URL: str = ""
     MAIL_FROM: str = ""

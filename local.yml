@@ -22,6 +22,7 @@ services:
       - ./backend/app/logs:/src/backend/app/logs
     ports:
       - "8000:8000"
+
     env_file:
       - ./.envs/.env.local
     depends_on:
@@ -38,6 +39,9 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.localhost`)"
       - "traefik.http.routers.api.service=api-service"
       - "traefik.http.services.api-service.loadbalancer.server.port=8000"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.timeout=5s"
 
   mailpit:
     image: docker.io/axllent/mailpit:v1.20.3
@@ -49,7 +53,7 @@ services:
     environment:
       MP_MAX_MESSAGES: 5000
       MP_DATA_FILE: /data/mailpit.db
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ACCPEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
       - nextgen_local_nw
@@ -89,10 +93,10 @@ services:
       - "traefik.http.routers.rabbitmq.service=rabbitmq-service"
       - "traefik.http.services.rabbitmq-service.loadbalancer.server.port=15672"
 
-  celery_worker:
+  celeryworker:
     <<: *api
     ports: []
-    command: /start-celeryWorker.sh
+    command: /start-celeryworker.sh
 
   flower:
     <<: *api
@@ -111,10 +115,10 @@ services:
       - "traefik.http.routers.flower.service=flower-service"
       - "traefik.http.services.flower-service.loadbalancer.server.port=5555"
 
-  celery_beat:
+  celerybeat:
     <<: *api
     ports: []
-    command: /start-celeryBeat.sh
+    command: /start-celerybeat.sh
 
 networks:
   nextgen_local_nw:
@@ -125,3 +129,4 @@ volumes:
   nextgen_mailpit_data:
   nextgen_flower_data:
   nextgen_rabbitmq_data:
+
