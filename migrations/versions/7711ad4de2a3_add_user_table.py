@@ -1,8 +1,8 @@
 """Add_user_table
 
-Revision ID: 2e6f8697145c
+Revision ID: 7711ad4de2a3
 Revises: 
-Create Date: 2026-07-04 06:44:16.579357
+Create Date: 2026-07-09 08:03:43.616286
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '2e6f8697145c'
+revision: str = '7711ad4de2a3'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -36,7 +36,7 @@ def upgrade() -> None:
     sa.Column('role', sa.Enum('CUSTOMER', 'ACCOUNT_EXECUTIVE', 'BRANCH_MANAGER', 'ADMIN', 'SUPER_ADMIN', 'TELLER', name='rolechoicesschema'), nullable=False),
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('hashed_password', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('failed_login_attempt', sa.Integer(), nullable=False),
+    sa.Column('failed_login_attempts', sa.SMALLINT(), nullable=True),
     sa.Column('last_failed_login', postgresql.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('otp', sqlmodel.sql.sqltypes.AutoString(length=6), nullable=False),
     sa.Column('otp_expiry_time', postgresql.TIMESTAMP(timezone=True), nullable=True),

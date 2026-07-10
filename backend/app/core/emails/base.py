@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader
 
 from backend.app.core.emails.config import TEMPLATES_DIR
-from backend.app.core.emails.tasks import send_email_task
+from backend.app.core.tasks.email import send_email_task
 from backend.app.core.logging import get_logger
 
 logger = get_logger()
@@ -21,7 +21,7 @@ class EmailTemplate:
         cls,
         email_to: str | list[str],
         context: dict,
-        subject_override: str | None
+        subject_override: str | None = None,
     ) -> None:
         try:
             recipients_list = [email_to] if isinstance(email_to, str) else email_to

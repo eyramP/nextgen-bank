@@ -1,8 +1,11 @@
 from celery import Celery
+from celery.schedules import crontab
+
 from backend.app.core.config import settings
 
-broker_url = f"amqp//{settings.RABBITMQ_USER}:{settings.RABBITMQ_PASSWORD}@{settings.RABBITMQ_HOST}:{settings.RABBITMQ_PORT}//"
-redis_url = f"redis//{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+redis_url = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+
+broker_url = f"amqp://{settings.RABBITMQ_USER}:{settings.RABBITMQ_PASSWORD}@{settings.RABBITMQ_HOST}:{settings.RABBITMQ_PORT}//"
 
 celery_app = Celery(
     "worker",
@@ -21,7 +24,7 @@ celery_app.conf.update(
     task_send_sent_event=True,
     result_extended=True,
     result_backend_always_retry=True,
-    result_expires=3600, #1 hour
+    result_expires=3600,
     task_time_limit=5 * 60,
     task_soft_time_limit=5 * 60,
     worker_send_task_events=True,
@@ -39,7 +42,7 @@ celery_app.conf.update(
 )
 
 celery_app.autodiscover_tasks(
-    packages=["backend.app.core.emails"],
-    related_name="tasks",
-    force=True #force discovery of tasks 
+    packages=["backend.app.core.tasks"],
+    related_name="email",
+    force=True,
 )

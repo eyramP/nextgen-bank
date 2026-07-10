@@ -10,6 +10,9 @@ down-v:
 connect_db:
 	docker compose -f local.yml exec postgres psql -U eyram -d nextgen
 
+logs_api:
+	docker compose -f local.yml logs api
+
 alembin_upgrade:
 	docker compose -f local.yml exec -it api alembic upgrade head
 

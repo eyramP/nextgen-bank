@@ -16,7 +16,7 @@ class User(BaseUserSchema, table=True):
         default_factory=uuid.uuid4
     )
     hashed_password: str
-    failed_login_attempt: int = Field(default=0, sa_column=pg.SMALLINT)
+    failed_login_attempts: int = Field(default=0, sa_column=Column(pg.SMALLINT))
     last_failed_login: datetime | None = Field(
         default=None,
         sa_column=Column(pg.TIMESTAMP(timezone=True)
