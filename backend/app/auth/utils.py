@@ -70,11 +70,11 @@ def set_auth_cookies(
     cookie_settings = {
         "path": settings.COOKIE_PATH,
         "secure": settings.COOKIE_SECURE,
-        "http_only": settings.COOKIE_HTTP_ONLY,
+        "httponly": settings.COOKIE_HTTP_ONLY,
         "samesite": settings.COOKIE_SAMESITE,
     }
 
-    """Configuring access token settings"""
+    """Configuring access cookie settings"""
     access_cookie_settings = cookie_settings.copy()
     access_cookie_settings["max_age"] = (
         settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES * 60
@@ -85,7 +85,7 @@ def set_auth_cookies(
         **access_cookie_settings
     )
 
-    """Configuring refresh token settings"""
+    """Configuring refresh cookie settings"""
     if refresh_token:
         refresh_cookie_settings = cookie_settings.copy()
         refresh_cookie_settings["max_age"] = (
