@@ -19,6 +19,7 @@ alembin_upgrade:
 nextgen-config:
 	docker compose -f local.yml config
 
+.PHONY: migrations migrate connect_db
 migrations:
 	docker compose -f local.yml exec -it api alembic revision --autogenerate -m "$(name)"
 

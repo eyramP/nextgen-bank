@@ -1,11 +1,14 @@
 import uuid
 from datetime import datetime, timezone
-from sqlmodel import Field, Column
+from typing import TYPE_CHECKING
+from sqlmodel import Field, Column, Relationship
 from pydantic import computed_field
 from sqlalchemy.dialects import postgresql as pg
 from sqlalchemy import text, func
 from backend.app.auth.schema import BaseUserSchema, RoleChoicesSchema
 
+if TYPE_CHECKING:
+    from backend.app.user_profile.models import Profile
 
 class User(BaseUserSchema, table=True):
     id: uuid.UUID = Field(
@@ -41,6 +44,19 @@ class User(BaseUserSchema, table=True):
             nullable=False,
             onupdate=func.current_timestamp(),
             ),
+    )
+    
+    """
+    This creates a one-to-one relationship between user and profile
+    so profile can access user using the user back_populated field on the profile table
+    """
+    """uselist: False make this relationship a one-to-one"""
+    profile: "Profile" = Relationship(
+        back_populates="user",
+        sa_relationship={
+            "uselist": False,
+            "lazy": "selectin"
+        }
     )
 
     @computed_field
