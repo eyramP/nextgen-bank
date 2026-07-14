@@ -1,7 +1,8 @@
 from typing import Literal
 
-# import cloudinary
+import cloudinary
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Literal
 
 
 class Settings(BaseSettings):
@@ -74,10 +75,11 @@ class Settings(BaseSettings):
     MAX_BANK_ACCOUNTS: int = 3
 
 
+
 settings = Settings()
 
-# cloudinary.config(
-#     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-#     api_key=settings.CLOUDINARY_API_KEY,
-#     api_secret=settings.CLOUDINARY_API_SECRET,
-# )
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+)
