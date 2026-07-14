@@ -43,7 +43,7 @@ class Profile(ProfileBaseSchema, table=True):
     This creates a bi-directional relationship
     Profile can acess user
     """
-    user_id: uuid.UUID = Field(foreign_key="user.id")
+    user_id: uuid.UUID = Field(foreign_key="user.id", unique=True)
 
     """
     This sets the profile field on the parent user

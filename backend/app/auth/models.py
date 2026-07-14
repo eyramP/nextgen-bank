@@ -45,15 +45,15 @@ class User(BaseUserSchema, table=True):
             onupdate=func.current_timestamp(),
             ),
     )
-    
+
     """
     This creates a one-to-one relationship between user and profile
     so profile can access user using the user back_populated field on the profile table
     """
-    """uselist: False make this relationship a one-to-one"""
+    """uselist: selectin False make this relationship a one-to-one"""
     profile: "Profile" = Relationship(
         back_populates="user",
-        sa_relationship={
+        sa_relationship_kwargs={
             "uselist": False,
             "lazy": "selectin"
         }
