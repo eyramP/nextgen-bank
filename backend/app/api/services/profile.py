@@ -4,8 +4,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
 from backend.app.user_profile.models import Profile
-from backend.app.user_profile.schema import ProfileCreateSchema, ProfileUpdateSchema
+from backend.app.user_profile.schema import ProfileCreateSchema, ProfileUpdateSchema, ImageTypeSchema
 from backend.app.core.logging import get_logger
+from backend.app.core.tasks.image_upload import upload_profile_image_task
 
 logger = get_logger()
 
@@ -79,7 +80,11 @@ async def update_user_profile(
 
         update_data = profile_data.model_dump(exclude_unset=True)
         for field, value in update_data.items():
-            if field not in ["profile_photo_url", "id_photo_url", "signature_photo_url"]:
+            if field not in [
+                "profile_photo_url",
+                "id_photo_url",
+                "signature_photo_url",
+            ]:
                 setattr(profile, field, value)
 
         await session.commit()
@@ -97,5 +102,75 @@ async def update_user_profile(
             detail={
                 "status": "error",
                 "message": "failed to update user profile"
+            }
+        )
+
+def initiate_image_upload(
+    file_content: bytes,
+    image_type: ImageTypeSchema,
+    content_type: str,
+    user_id: uuid.UUID
+) -> str:
+    try:
+        task = upload_profile_image_task.delay(
+            file_content,
+            image_type.value,
+            str(user_id),
+            content_type
+        )
+
+        return task.id
+    except Exception as e:
+        logger.error(f'Error initiating image upload: {str(e)}', exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to initiate image upload"
+            }
+        )
+
+async def update_profile_image_url(
+    user_id: uuid.UUID,
+    image_type: ImageTypeSchema,
+    image_url: str,
+    session: AsyncSession
+) -> Profile:
+    try:
+        profile = await get_user_profile(user_id, session)
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "status": "error",
+                    "message": "Profile not found",
+                    "action": "Please create a profile first",
+                }
+            )
+
+        field_mapping = {
+            ImageTypeSchema.PROFILE_PHOTO: "profile_photo_url",
+            ImageTypeSchema.ID_PHOTO: "id_photo_url",
+            ImageTypeSchema.SIGNATURE_PHOTO: "signature_photo_url",
+        }
+
+        field_name = field_mapping.get(image_type)
+        if not field_name:
+            raise ValueError(f"Invalid image type: {image_type}")
+
+        setattr(profile, field_name, image_url)
+
+        await session.commit()
+        await session.refresh(profile)
+        return profile
+    except HTTPException as http_ex:
+        raise http_ex
+    except Exception as e:
+        logger.error(f"Error updating profile image url: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to update profile image url",
             }
         )
