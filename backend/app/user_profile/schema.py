@@ -9,24 +9,24 @@ from pydantic import field_validator
 from backend.app.user_profile.utils import validate_id_dates
 from backend.app.auth.schema import RoleChoicesSchema
 from backend.app.user_profile.enums import (
-    SalutationSchema,
-    GenderSchema,
-    MaritalStatusSchema,
-    IdentificationTypeSchema,
-    EmploymentStatusSchema,
-    ImageTypeSchema
+    SalutationEnum,
+    GenderEnum,
+    MaritalStatusEnum,
+    IdentificationTypeEnum,
+    EmploymentStatusEnum,
+    ImageTypeEnum
 )
 
 
 
 class ProfileBaseSchema(SQLModel):
-    title: SalutationSchema
-    gender: GenderSchema
+    title: SalutationEnum
+    gender: GenderEnum
     date_of_birth: date
     country_of_birth: CountryShortName
     place_of_birth: str
-    marital_status: MaritalStatusSchema
-    means_of_identification: IdentificationTypeSchema
+    marital_status: MaritalStatusEnum
+    means_of_identification: IdentificationTypeEnum
     id_issue_date: date
     id_expiry_date: date
     passport_number: str
@@ -35,7 +35,7 @@ class ProfileBaseSchema(SQLModel):
     address: str
     city: str
     country: str
-    employment_status: EmploymentStatusSchema
+    employment_status: EmploymentStatusEnum
     employer_name: str
     employer_address: str
     employer_city: str
@@ -59,13 +59,13 @@ class ProfileReadSchema(ProfileBaseSchema):
     updated_at: datetime
 
 class ProfileUpdateSchema(ProfileBaseSchema):
-    title: SalutationSchema | None = None
-    gender: GenderSchema | None = None
+    title: SalutationEnum | None = None
+    gender: GenderEnum | None = None
     date_of_birth: date | None = None
     country_of_birth: CountryShortName | None = None
     place_of_birth: str | None = None
-    marital_status: MaritalStatusSchema | None = None
-    means_of_identification: IdentificationTypeSchema | None = None
+    marital_status: MaritalStatusEnum | None = None
+    means_of_identification: IdentificationTypeEnum | None = None
     id_issue_date: date | None = None
     id_expiry_date: date | None = None
     passport_number: str | None = None
@@ -74,7 +74,7 @@ class ProfileUpdateSchema(ProfileBaseSchema):
     address: str | None = None
     city: str | None = None
     country: str | None = None
-    employment_status: EmploymentStatusSchema | None = None
+    employment_status: EmploymentStatusEnum | None = None
     employer_name: str | None = None
     employer_address: str | None = None
     employer_city: str | None = None
