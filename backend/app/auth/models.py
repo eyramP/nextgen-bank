@@ -8,7 +8,9 @@ from sqlalchemy import text, func
 from backend.app.auth.schema import BaseUserSchema, RoleChoicesSchema
 
 if TYPE_CHECKING:
+    """This prevents secular imports """
     from backend.app.user_profile.models import Profile
+    from backend.app.next_of_kin.models import NextOfKin
 
 class User(BaseUserSchema, table=True):
     id: uuid.UUID = Field(
@@ -58,6 +60,9 @@ class User(BaseUserSchema, table=True):
             "lazy": "selectin"
         }
     )
+
+    """ NextOfKin one-to-many relationship """
+    next_of_kins: list["NextOfKin"] = Relationship(back_populates="user",)
 
     @computed_field
     @property

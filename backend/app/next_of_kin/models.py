@@ -6,14 +6,14 @@ from datetime import datetime, timezone
 from sqlalchemy import func, text
 from sqlalchemy.dialects import postgresql as pg
 from sqlmodel import Column, Field, Relationship
-from backend.app.user_profile.schema import ProfileBaseSchema
+from backend.app.next_of_kin.schema import NextOfKinBaseSchema
+
 
 if TYPE_CHECKING:
     """This prevents secular imports """
     from backend.app.auth.models import User
 
-
-class Profile(ProfileBaseSchema, table=True):
+class NextOfKin(NextOfKinBaseSchema, table=True):
     id: uuid.UUID = Field(
         sa_column=Column(
             pg.UUID(as_uuid=True),
@@ -38,17 +38,5 @@ class Profile(ProfileBaseSchema, table=True):
         ),
     )
 
-    """
-    Profile is the child model so we add
-    the user_id here as a foreign key
-    This creates a bi-directional relationship
-    Profile can acess user
-    """
-    user_id: uuid.UUID = Field(foreign_key="user.id", unique=True)
-
-    """
-    This sets the profile field on the parent user
-    table creating the one to one relationship
-    User can access profile
-    """
-    user: "User" = Relationship(back_populates="profile")
+    user_id: uuid.UUID = Field(foreign_key="user.id")
+    user: "User" = Relationship(back_populates="next_of_kins")
