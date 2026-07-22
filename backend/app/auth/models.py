@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     """This prevents secular imports """
     from backend.app.user_profile.models import Profile
     from backend.app.next_of_kin.models import NextOfKin
+    from backend.app.bank_account.models import BankAccount
 
 class User(BaseUserSchema, table=True):
     id: uuid.UUID = Field(
@@ -63,6 +64,11 @@ class User(BaseUserSchema, table=True):
 
     """ NextOfKin one-to-many relationship """
     next_of_kins: list["NextOfKin"] = Relationship(back_populates="user",)
+
+    """ BankAccount one-to-many relationship """
+    bank_accounts: list["BankAccount"] = Relationship(back_populates="user",)
+
+
 
     @computed_field
     @property

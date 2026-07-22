@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     CURRENCY_CODE_USD: str = "01"
     CURRENCY_CODE_EUR: str = "02"
     CURRENCY_CODE_GBP: str = "03"
-    CURRENCY_CODE_KES: str = "04"
+    CURRENCY_CODE_GHS: str = "04"
     MAX_BANK_ACCOUNTS: int = 3
 
 
