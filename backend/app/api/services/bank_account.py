@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from datetime import timezone, datetime
 from fastapi import HTTPException, status
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -7,6 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.app.core.logging import get_logger
 from backend.app.bank_account.models import BankAccount
 from backend.app.bank_account.schema import BankAccountCreateSchema
+from backend.app.bank_account.enums import AccountStatusEnum
 from backend.app.bank_account.utils import generate_account_number
 from backend.app.core.config import settings
 from backend.app.auth.models import User
@@ -136,3 +137,78 @@ async def create_bank_account(
             }
         )
 
+
+async def actiavte_bank_account(
+    account_id: UUID,
+    verified_by: UUID,
+    session: AsyncSession
+) -> tuple[BankAccount, User]:
+    try:
+
+        """Prepare statement here"""
+        statement = (
+            select(BankAccount, User)
+            .join(User)
+            .where(BankAccount.id == account_id, BankAccount.user_id != verified_by)
+        )
+
+        """execute statement"""
+        result = await session.exec(statement)
+        account_user_tuple = result.first()
+
+        """Raise a 404 if account tuple is not found"""
+        if not account_user_tuple:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "status": "error",
+                    "message": "Bank account not found"
+                }
+            )
+
+        """Unpack the tuple"""
+        account, user = account_user_tuple
+
+        """
+        Check if the account is activated already and send a 400 bad request to the user
+        Notifyig himm/her that the account already activated
+        """
+        if account.account_status == AccountStatusEnum.Active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "status": "error",
+                    "message": "Bank account activated already"
+                }
+            )
+
+        """Activate the account now"""
+        account.kyc_submitted = True
+        account.kyc_verified = True
+        account.kyc_verified_on = datetime.now(timezone.utc)
+        account.account_status = AccountStatusEnum.Active
+        account.kyc_verified_by = verified_by
+
+        """Save the changes to the database and refesh to get the latest state"""
+        session.add(account)
+        await session.commit()
+        await session.refresh(account)
+
+        """Return activated account and user tuple"""
+        return account, user
+    except HTTPException as http_ex:
+        """Raise an exception and rollback the transaction if anything goes wrong"""
+        await session.rollback()
+        raise http_ex
+    except Exception as e:
+        """Raise an exception and rollback the transaction if anything goes wrong"""
+        await session.rollback()
+        logger.error(f"Failed to activate account: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to activate account bank account",
+                "message": "Try again later"
+            }
+        )
