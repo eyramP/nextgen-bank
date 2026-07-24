@@ -32,12 +32,12 @@ def calculate_luhn_check_digit(number: str) -> int:
 
     # It's odd positioned digits and even positioned digits
     odd_digits = digits[-1::-2]
-    even_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
 
     total = sum(odd_digits)
 
     for digit in even_digits:
-        doubled = digits * 2
+        doubled = digit * 2
         total += sum(split_into_digits(doubled))
 
     return (10 - (total % 10)) % 10
@@ -59,7 +59,7 @@ def generate_account_number(currency: AccountCurrencyEnum) -> str:
         prefix = f"{settings.BANK_CODE}{settings.BANK_BRANCH_CODE}{currency_code}"
         remaining_digits = 16 - len(prefix) - 1
         random_digits = "".join(
-            secrets.choice("0123456789") for _ in range(random_digits)
+            secrets.choice("0123456789") for _ in range(remaining_digits)
             )
 
         partial_account_number = f"{prefix}{random_digits}"

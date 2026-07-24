@@ -39,9 +39,9 @@ class BankAccount(BankAccountBaseSchema, table=True):
         default=None,
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
-            nullable=False,
+            nullable=True,
             ),
     )
 
-    user_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
+    user_id: uuid.UUID = Field(foreign_key="user.id", unique=True, ondelete="CASCADE")
     user: "User" = Relationship(back_populates="bank_accounts")
